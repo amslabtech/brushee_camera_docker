@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find camera_apps)/launch/object_detector_node.launch"/>
+    <include file="$(find theta_s_ros)/launch/theta_s_ros.launch"/>
+    <node name="topic_relay" pkg="topic_tools" type="relay" args=" /equirectangular/image_raw /camera/color/image_raw" />
+</launch>
