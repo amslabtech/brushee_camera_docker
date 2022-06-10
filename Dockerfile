@@ -14,7 +14,7 @@ WORKDIR $HOME
 ENV TZ Asia/Tokyo
 RUN apt update && \
     apt install -y lsb-release && \
-    sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+    sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' 
 RUN apt install tzdata && \
     ln -snf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     apt install -y curl gnupg && \
@@ -23,21 +23,22 @@ RUN apt install tzdata && \
     apt install -y ros-noetic-ros-base python3-osrf-pycommon python3-rosdep python3-catkin-tools \
                    python3-rosdep python3-rosinstall python3-rosinstall-generator \
                    python3-wstool build-essential git openssh-server tmux \
-                   ros-noetic-libuvc-camera
+                   ros-noetic-libuvc-camera ros-noetic-cv-bridge \
+                   ros-noetic-pcl-ros ros-noetic-pcl-msgs
 
 ### setup ssh###
-#RUN mkdir -m 700 $HOME/.ssh
-#RUN ssh-keyscan github.com > $HOME/.ssh/known_hosts
+RUN mkdir -m 700 $HOME/.ssh
+RUN ssh-keyscan github.com > $HOME/.ssh/known_hosts
 
 ### ROS setup###
 WORKDIR $HOME
 RUN mkdir -p $HOME/catkin_ws/src
 WORKDIR $HOME/catkin_ws/src
-#RUN --mount=type=ssh git clone --recursive git@github.com:YasunoriHirakawa/theta_s_ros.git && \
-#                     git clone https://github.com/Hori3538/depth_estimator.git && \
-#                     git clone -b dev https://github.com/Hori3538/camera_apps.git && \
-#                     git clone -b dev https://github.com/Hori3538/camera_apps_msgs.git && \
-#    rosdep update && rosdep install -i -r -y --from-paths .
+RUN --mount=type=ssh git clone --recursive git@github.com:YasunoriHirakawa/theta_s_ros.git && \
+                     git clone https://github.com/Hori3538/depth_estimator.git && \
+                     git clone -b dev https://github.com/Hori3538/camera_apps.git && \
+                     git clone -b dev https://github.com/Hori3538/camera_apps_msgs.git && \
+                     rosdep init && rosdep update && rosdep install -i -r -y --from-paths .
 
 ##catkin build##
 WORKDIR $HOME/catkin_ws

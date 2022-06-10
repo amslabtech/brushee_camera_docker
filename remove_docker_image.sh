@@ -1,3 +1,3 @@
-#!/usr/bin
+#!/bin/bash
 
 docker system prune -a
