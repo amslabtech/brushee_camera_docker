@@ -38,7 +38,49 @@ RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/sbs
     apt install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
                  cuda-11-3
 
+### install cudnn ###
+WORKDIR /root
+RUN wget --secure-protocol=auto https://developer.nvidia.com/compute/cudnn/secure/8.4.0/local_installers/11.6/cudnn-local-repo-ubuntu2004-8.4.0.27_1.0-1_arm64.deb && \
+    apt install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+                ./cudnn-local-repo-ubuntu2004-8.4.0.27_1.0-1_arm64.deb
 
+### build opencv ###
+WORKDIR /root
+RUN apt update && apt upgrade &&\
+    apt install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+                build-essential cmake unzip pkg-config libjpeg-dev libpng-dev libtiff-dev \
+                libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libxvidcore-dev libx264-dev \
+                libgtk-3-dev libblas-dev liblapack-dev gfortran python3-dev &&\
+    wget -O opencv-4.5.5.zip https://github.com/opencv/opencv/archive/4.5.5.zip && \
+    unzip -q opencv-4.5.5.zip && \
+    mv opencv-4.5.5 opencv && \
+    rm -f opencv-4.5.5.zip && \
+
+RUN wget -O opencv_contrib-4.5.5.zip https://github.com/opencv/opencv_contrib/archive/4.5.5.zip && \
+    unzip -q opencv_contrib-4.5.5.zip && \
+    mv opencv_contrib-4.5.5 opencv_contrib && \
+    rm -f opencv_contrib-4.5.5.zip && \
+
+WORKDIR /root/opencv
+RUN mkdir build && \
+    cd build && \
+    cmake -D CMAKE_BUILD_TYPE=RELEASE \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D INSTALL_PYTHON_EXAMPLES=ON \
+    -D INSTALL_C_EXAMPLES=OFF \
+    -D OPENCV_ENABLE_NONFREE=ON \
+    -D WITH_CUDA=ON \
+    -D WITH_CUDNN=ON \
+    -D OPENCV_DNN_CUDA=ON \
+    -D ENABLE_FAST_MATH=1 \
+    -D CUDA_FAST_MATH=1 \
+    -D CUDA_ARCH_BIN=7.2 \
+    -D CUDA_ARCH_PTX=7.2 \
+    -D WITH_CUBLAS=1 \
+    -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules \
+    -D HAVE_opencv_python3=ON \
+    -D PYTHON_EXECUTABLE=~/.virtualenvs/opencv_cuda/bin/python \
+    -D BUILD_EXAMPLES=ON ..
 
 ### setup ssh###
 RUN mkdir -m 700 $HOME/.ssh
