@@ -39,3 +39,4 @@ docker run -it --rm \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     --device="/dev/bus/usb/$BUS_NUMBER/$DEVICE_NUMBER:/dev/bus/usb/$BUS_NUMBER/$DEVICE_NUMBER:mwr" \
     $IMAGE_NAME
+    #uname -m
